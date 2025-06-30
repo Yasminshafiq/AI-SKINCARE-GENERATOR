@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🌿 SkinGlow AI - Personalized Skincare Recommender</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+  /* ===== Reset and base ===== */
+  body {
+    background: linear-gradient(135deg, #f9f7f6 0%, #e0f7fa 100%);
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #333;
+  }
+
+  h1, h3, h4 {
+    font-weight: 700;
+    color: #00695c;
+  }
+
+  /* ===== Container ===== */
+  .container {
+    max-width: 900px;
+    background: #fff;
+    margin: 2rem 1rem 4rem;
+    padding: 2.5rem 3rem 3rem;
+    border-radius: 15px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    transition: box-shadow 0.3s ease;
+  }
+  .container:hover {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  }
+
+  /* ===== Header ===== */
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+    user-select: none;
+  }
+  .header h1 {
+    font-size: 2.8rem;
+  }
+  .header p {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #004d40;
+  }
+
+  /* ===== Form ===== */
+  form {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    font-weight: 600;
+    color: #004d40;
+  }
+
+  select.form-select {
+    border-radius: 10px;
+    border: 2px solid #004d40;
+    transition: border-color 0.3s ease;
+  }
+  select.form-select:focus {
+    border-color: #00796b;
+    box-shadow: 0 0 5px #00796b;
+    outline: none;
+  }
+
+  /* Button */
+  button.btn-primary {
+    background: linear-gradient(45deg, #00796b, #004d40);
+    border: none;
+    padding: 0.65rem 2.2rem;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.4s ease, transform 0.2s ease;
+  }
+  button.btn-primary:hover {
+    background: linear-gradient(45deg, #004d40, #00796b);
+    transform: scale(1.05);
+  }
+  button.btn-primary:active {
+    transform: scale(0.95);
+  }
+
+  /* ===== Results Section ===== */
+  #result {
+    display: none;
+  }
+
+  .card {
+    background: #e0f2f1;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+  }
+
+  ul.list-group-item {
+    border: none;
+    background: transparent;
+    padding-left: 0;
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: #004d40;
+    margin-bottom: 0.35rem;
+    position: relative;
+  }
+  ul.list-group-item::before {
+    content: '✓';
+    color: #00796b;
+    margin-right: 8px;
+    font-weight: 700;
+    position: absolute;
+    left: 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 576px) {
+    .container {
+      padding: 2rem 1.5rem 2rem;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🌿 SkinGlow AI</h1>
+      <p>Personalized Skincare Tips Based on Your Skin Type and Concerns</p>
+    </div>
+
+    <form id="skincareForm" novalidate>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <label for="skinType" class="form-label">Your Skin Type</label>
+          <select class="form-select" id="skinType" required>
+            <option value="" disabled selected>Select skin type</option>
+            <option value="dry">Dry</option>
+            <option value="oily">Oily</option>
+            <option value="combination">Combination</option>
+            <option value="sensitive">Sensitive</option>
+          </select>
+          <div class="invalid-feedback">Please select your skin type.</div>
+        </div>
+
+        <div class="col-md-4">
+          <label for="weather" class="form-label">Current Weather</label>
+          <select class="form-select" id="weather" required>
+            <option value="" disabled selected>Select current weather</option>
+            <option value="hot">Hot</option>
+            <option value="cold">Cold</option>
+            <option value="humid">Humid</option>
+            <option value="dry_air">Dry Air</option>
+          </select>
+          <div class="invalid-feedback">Please select current weather.</div>
+        </div>
+
+        <div class="col-md-4">
+          <label for="issue" class="form-label">Your Skin Concern</label>
+          <select class="form-select" id="issue" required>
+            <option value="" disabled selected>Select skin concern</option>
+            <option value="acne">Acne</option>
+            <option value="redness">Redness</option>
+            <option value="dryness">Dryness</option>
+            <option value="dark_spots">Dark Spots</option>
+          </select>
+          <div class="invalid-feedback">Please select your skin concern.</div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary">Get Skincare Advice 🌟</button>
+      </div>
+    </form>
+
+    <div id="result" class="mt-5">
+      <div class="card">
+        <h3>Recommended Skincare Tips:</h3>
+        <ul id="recommendations" class="list-group mt-3"></ul>
+      </div>
+
+      <div class="card">
+        <h4>🍽️ Recommended Food Habits:</h4>
+        <ul id="foodHabitsList" class="list-group mt-2"></ul>
+      </div>
+
+      <div class="card">
+        <h4>🏡 DIY Home Remedies:</h4>
+        <ul id="diyRemediesList" class="list-group mt-2"></ul>
+      </div>
+
+      <div class="card">
+        <h4>🧴 Dermatologically Tested Products:</h4>
+        <ul id="productsList" class="list-group mt-2"></ul>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Data definitions
+  const tipsDB = {
+    dry: {
+      acne: [
+        "Use a hydrating cleanser with ceramides.",
+        "Avoid alcohol-based products."
+      ],
+      dryness: [
+        "Apply rich moisturizers with hyaluronic acid.",
+        "Use face oil at night for extra hydration."
+      ],
+      redness: [
+        "Use gentle, fragrance-free products.",
+        "Avoid harsh scrubs or exfoliants."
+      ],
+      dark_spots: [
+        "Apply vitamin C serum daily.",
+        "Use sunscreen consistently."
+      ]
+    },
+    oily: {
+      acne: [
+        "Use a gentle foaming cleanser.",
+        "Apply salicylic acid or tea tree oil."
+      ],
+      dark_spots: [
+        "Use a vitamin C serum.",
+        "Apply SPF daily to prevent pigmentation."
+      ],
+      redness: [
+        "Avoid heavy creams that clog pores.",
+        "Use aloe vera gel to soothe skin."
+      ],
+      dryness: [
+        "Light moisturizers are best to prevent over-drying.",
+        "Avoid harsh soaps."
+      ]
+    },
+    combination: {
+      redness: [
+        "Use fragrance-free calming moisturizers.",
+        "Apply green tea extract serums."
+      ],
+      acne: [
+        "Use gentle cleansers balancing oily and dry areas.",
+        "Avoid heavy makeup."
+      ],
+      dryness: [
+        "Moisturize dry zones with hydrating creams.",
+        "Use gentle exfoliation once a week."
+      ],
+      dark_spots: [
+        "Use brightening agents like niacinamide.",
+        "Protect from sun exposure."
+      ]
+    },
+    sensitive: {
+      redness: [
+        "Use fragrance-free calming products.",
+        "Apply chamomile or calendula-based creams."
+      ],
+      acne: [
+        "Avoid harsh acne treatments; opt for gentle benzoyl peroxide.",
+        "Patch test all new products."
+      ],
+      dryness: [
+        "Use creamy moisturizers with ceramides.",
+        "Avoid hot water on face."
+      ],
+      dark_spots: [
+        "Use mild brightening ingredients.",
+        "Always apply sunscreen."
+      ]
+    }
+  };
+
+  const foodHabitsDB = {
+    dry: [
+      "Drink plenty of water to stay hydrated.",
+      "Include nuts and seeds rich in omega-3 fatty acids.",
+      "Eat fruits high in vitamin C like oranges and strawberries."
+    ],
+    oily: [
+      "Avoid greasy and fried foods.",
+      "Increase intake of green leafy vegetables.",
+      "Eat foods rich in zinc like pumpkin seeds."
+    ],
+    combination: [
+      "Balance your diet with proteins and complex carbs.",
+      "Include antioxidants like blueberries and green tea.",
+      "Avoid excessive sugar consumption."
+    ],
+    sensitive: [
+      "Include probiotic foods like yogurt.",
+      "Avoid spicy and processed foods.",
+      "Eat foods rich in vitamins A and E."
+    ]
+  };
+
+  const diyRemediesDB = {
+    dry: [
+      "Apply aloe vera gel for natural hydration.",
+      "Use honey and milk mask to soothe and moisturize skin."
+    ],
+    oily: [
+      "Apply a lemon and honey mask to control oiliness.",
+      "Use oatmeal scrub to gently exfoliate."
+    ],
+    combination: [
+      "Use cucumber slices on oily areas to reduce shine.",
+      "Apply yogurt mask to balance skin moisture."
+    ],
+    sensitive: [
+      "Apply chamomile tea compress to calm redness.",
+      "Use oatmeal and banana mask for soothing effect."
+    ]
+  };
+
+  const productsDB = {
+    dry: [
+      "CeraVe Moisturizing Cream",
+      "Neutrogena Hydro Boost Gel-Cream",
+      "La Roche-Posay Lipikar Balm AP+"
+    ],
+    oily: [
+      "La Roche-Posay Effaclar Purifying Foaming Gel",
+      "Neutrogena Oil-Free Moisture",
+      "Cetaphil PRO Oil Absorbing Moisturizer"
+    ],
+    combination: [
+      "Clinique Dramatically Different Moisturizing Gel",
+      "Aveeno Clear Complexion Daily Moisturizer",
+      "Bioderma Sébium Hydra"
+    ],
+    sensitive: [
+      "Vanicream Moisturizing Cream",
+      "Avene Skin Recovery Cream",
+      "Eucerin Redness Relief Soothing Night Cream"
+    ]
+  };
+
+  // Enhanced form validation + submission
+  (() => {
+    const form = document.getElementById('skincareForm');
+    const skinTypeInput = document.getElementById('skinType');
+    const issueInput = document.getElementById('issue');
+    const weatherInput = document.getElementById('weather');
+
+    const resultSection = document.getElementById('result');
+    const recList = document.getElementById('recommendations');
+    const foodList = document.getElementById('foodHabitsList');
+    const diyList = document.getElementById('diyRemediesList');
+    const productsList = document.getElementById('productsList');
+
+    // Validate selects (basic)
+    function validateSelect(select) {
+      if (!select.value) {
+        select.classList.add('is-invalid');
+        return false;
+      } else {
+        select.classList.remove('is-invalid');
+        return true;
+      }
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      let valid = true;
+      valid &= validateSelect(skinTypeInput);
+      valid &= validateSelect(issueInput);
+      valid &= validateSelect(weatherInput);
+
+      if (!valid) return;
+
+      // Clear previous results
+      recList.innerHTML = '';
+      foodList.innerHTML = '';
+      diyList.innerHTML = '';
+      productsList.innerHTML = '';
+
+      resultSection.style.display = 'block';
+
+      const skinType = skinTypeInput.value;
+      const issue = issueInput.value;
+      const weather = weatherInput.value;
+
+      // Compose stronger logic:
+      // Show skin tips for selected skinType and issue
+      if (tipsDB[skinType] && tipsDB[skinType][issue]) {
+        tipsDB[skinType][issue].forEach(tip => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item';
+          li.textContent = tip;
+          recList.appendChild(li);
+        });
+      } else {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = 'No tips available for this combination.';
+        recList.appendChild(li);
+      }
+
+      // Add extra tip if weather is cold or dry_air and skin is dry or sensitive
+      if ((weather === 'cold' || weather === 'dry_air') && (skinType === 'dry' || skinType === 'sensitive')) {
+        const li = document.createElement('li');
+        li.className = 'list-group-item fw-bold text-primary';
+        li.textContent = "In " + (weather === 'cold' ? "cold" : "dry") + " weather, use heavier moisturizers and avoid hot showers.";
+        recList.appendChild(li);
+      }
+
+      // Food habits
+      if (foodHabitsDB[skinType]) {
+        foodHabitsDB[skinType].forEach(food => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item';
+          li.textContent = food;
+          foodList.appendChild(li);
+        });
+      }
+
+      // DIY remedies
+      if (diyRemediesDB[skinType]) {
+        diyRemediesDB[skinType].forEach(remedy => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item';
+          li.textContent = remedy;
+          diyList.appendChild(li);
+        });
+      }
+
+      // Dermatologically tested products
+      if (productsDB[skinType]) {
+        productsDB[skinType].forEach(product => {
+          const li = document.createElement('li');
+          li.className = 'list-group-item';
+          li.textContent = product;
+          productsList.appendChild(li);
+        });
+      }
+    });
+  })();
+</script>
+</body>
+</html>
